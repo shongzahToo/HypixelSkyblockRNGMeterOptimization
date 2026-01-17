@@ -1,38 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expected Drops Calculator</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expected Drops Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <div class="container">
-    <h1>Expected Drops Calculator</h1>
+    <div class="container">
+        <h1>Expected Drops Calculator</h1>
 
-    <div class="controls">
-      <div class="field">
-        <label for="runsInput">Runs</label>
-        <input type="text" id="runsInput" placeholder="1000 / 1k"/>
-      </div>
+        <h3>Default values are for a handle in f7</h3>
 
-      <div class="field">
-        <label for="baseOddsInput">Base Odds</label>
-        <input type="text" id="baseOddsInput" placeholder="0.00109 / 0.109%"/>
-      </div>
+        <div class="controls">
+            <div class="field">
+                <label for="scorePerRunInput">Score Added Per Run (Dungeon Score)</label>
+                <input type="text" id="scorePerRunInput" placeholder="300" value="300" />
+            </div>
 
-      <button id="calculateButton">Calculate</button>
+            <div class="field">
+                <label for="baseOddsInput">Base Odds</label>
+                <input type="text" id="baseOddsInput" placeholder="0.00109 / 0.109%" value=".109%" />
+            </div>
+
+            <div class="field">
+                <label for="itemWeightInput">Item Weight (Found on Wiki)</label>
+                <input type="text" id="itemWeightInput" placeholder="15" value="15" />
+            </div>
+            
+            <div class="field">
+                <label for="totalWeightInput">Total Weight (Found on Wiki)</label>
+                <input type="text" id="totalWeightInput" placeholder="13,706 / 1.3706k" value="13,706" />
+            </div>
+        </div>
+
+        <button id="calculateButton">Calculate</button>
+
+        <div class="best-cutoff">
+            <span>Best time to disable meter:</span>
+            <strong id="bestCutoff">—</strong>
+        </div>
+
+
+        <div id="results" class="results"></div>
     </div>
 
-    <div class="best-cutoff">
-        <span>Best time to disable meter:</span>
-        <strong id="bestCutoff">—</strong>
-    </div>
-
-
-    <div id="results" class="results"></div>
-  </div>
-
-  <script src="app.js" type="module"></script>
+    <script src="app.js" type="module"></script>
 </body>
+
 </html>

@@ -1,17 +1,33 @@
 import { createNumberInput } from 'smart-number-input';
-let n = 100;
+let scorePerRun = 300;
 let baseOdds = 0.00109;
-const requiredDungeonScore = (300 * 13706) / 15;
-const scorePerRun = requiredDungeonScore / n;
+let itemWeight = 15;
+let totalWeight = 13706;
 
-const runsInput = createNumberInput(document.getElementById('runsInput'), {
+Object.defineProperty(window, 'requiredDungeonScore', {
+    get: () => {
+        return (totalWeight / itemWeight) * 300;
+    },
+    enumerable: true,
+    configurable: false
+});
+
+Object.defineProperty(window, 'n', {
+    get: () => {
+        return Math.ceil(requiredDungeonScore / scorePerRun);
+    },
+    enumerable: true,
+    configurable: false
+});
+
+const runsInput = createNumberInput(document.getElementById('scorePerRunInput'), {
   focusFormat: '0',
-  blurFormat: '0,0[.00][a]',
+  blurFormat: '0,0[a]',
   allowNegative: false,
   min: 0,
   max: 999999,
   step: 1,
-    onChange: (value) => {n = value;}
+    onChange: (value) => {scorePerRun = value;}
 });
 
 const oddsInput = createNumberInput(document.getElementById('baseOddsInput'), {
@@ -24,9 +40,28 @@ const oddsInput = createNumberInput(document.getElementById('baseOddsInput'), {
     onChange: (value) => {baseOdds = value}
 });
 
+const itemWeightInput = createNumberInput(document.getElementById('itemWeightInput'), {
+    focusFormat: '0,0',
+    blurFormat: '0,0[a]',
+    allowNegative: false,
+    min: 0,
+    max: 999999,
+    step: 1,
+    onChange: (value) => {itemWeight = value}
+});
 
+const totalWeightInput = createNumberInput(document.getElementById('totalWeightInput'), {
+    focusFormat: '0,0',
+    blurFormat: '0,0[a]',
+    allowNegative: false,
+    min: 0,
+    max: 999999,
+    step: 1,
+    onChange: (value) => {totalWeight = value}
+});
 
 const pMeter = new Float64Array(n + 1);
+
 for (let fails = 0; fails <= n; fails++) {
   const storedScore = fails * scorePerRun;
   const mult = 1 + Math.min((2 * storedScore) / requiredDungeonScore, 2);
