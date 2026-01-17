@@ -1,6 +1,6 @@
 import { createNumberInput } from 'smart-number-input';
 let scorePerRun = 300;
-let baseOdds = 0.00109;
+let baseProbability = 0.00109;
 let itemWeight = 15;
 let totalWeight = 13706;
 
@@ -30,14 +30,14 @@ const runsInput = createNumberInput(document.getElementById('scorePerRunInput'),
     onValueChange: (value) => { scorePerRun = value; }
 });
 
-const oddsInput = createNumberInput(document.getElementById('baseOddsInput'), {
+const oddsInput = createNumberInput(document.getElementById('baseProbabilityInput'), {
     focusFormat: '0.00[00000]',
     blurFormat: '0.00[00000]%',
     allowNegative: false,
     min: 0,
     max: 999999,
     step: 1,
-    onValueChange: (value) => { baseOdds = value }
+    onValueChange: (value) => { baseProbability = value }
 });
 
 const itemWeightInput = createNumberInput(document.getElementById('itemWeightInput'), {
@@ -65,8 +65,8 @@ const pMeter = new Float64Array(n + 1);
 for (let fails = 0; fails <= n; fails++) {
     const storedScore = fails * scorePerRun;
     const mult = 1 + Math.min((2 * storedScore) / requiredDungeonScore, 2);
-    const num = baseOdds * mult;
-    pMeter[fails] = num / (1 - baseOdds + num);
+    const num = baseProbability * mult;
+    pMeter[fails] = num / (1 - baseProbability + num);
 }
 
 function expectedWithMeter(T) {
@@ -102,7 +102,7 @@ function expectedWithCutoff(T, k) {
 
         for (let r = n - 1; r >= 0; r--) {
             const meterOn = r < k;
-            const p = meterOn ? pMeter[r] : baseOdds;
+            const p = meterOn ? pMeter[r] : baseProbability;
 
             const succNext = meterOn ? dp0Next : next[r + 1];
 
