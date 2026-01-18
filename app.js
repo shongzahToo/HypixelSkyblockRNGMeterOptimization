@@ -1,9 +1,9 @@
 import { createNumberInput } from 'smart-number-input';
 let scorePerRun = 300;
-let baseProbability = 0.00109;
 let itemWeight = 15;
 let totalWeight = 13706;
-
+let pMeter;
+let T;
 Object.defineProperty(window, 'requiredDungeonScore', {
     get: () => {
         return (totalWeight / itemWeight) * 300;
@@ -20,6 +20,14 @@ Object.defineProperty(window, 'n', {
     configurable: false
 });
 
+Object.defineProperty(window, 'baseProbability', {
+    get: () => {
+        return itemWeight / totalWeight;
+    },
+    enumerable: true,
+    configurable: false
+});
+
 const runsInput = createNumberInput(document.getElementById('scorePerRunInput'), {
     focusFormat: '0',
     blurFormat: '0,0[a]',
@@ -28,16 +36,6 @@ const runsInput = createNumberInput(document.getElementById('scorePerRunInput'),
     max: 999999,
     step: 1,
     onValueChange: (value) => { scorePerRun = value; }
-});
-
-const oddsInput = createNumberInput(document.getElementById('baseProbabilityInput'), {
-    focusFormat: '0.00[00000]',
-    blurFormat: '0.00[00000]%',
-    allowNegative: false,
-    min: 0,
-    max: 999999,
-    step: 1,
-    onValueChange: (value) => { baseProbability = value }
 });
 
 const itemWeightInput = createNumberInput(document.getElementById('itemWeightInput'), {
@@ -59,15 +57,6 @@ const totalWeightInput = createNumberInput(document.getElementById('totalWeightI
     step: 1,
     onValueChange: (value) => { totalWeight = value }
 });
-
-const pMeter = new Float64Array(n + 1);
-
-for (let fails = 0; fails <= n; fails++) {
-    const storedScore = fails * scorePerRun;
-    const mult = 1 + Math.min((2 * storedScore) / requiredDungeonScore, 2);
-    const num = baseProbability * mult;
-    pMeter[fails] = num / (1 - baseProbability + num);
-}
 
 function expectedWithMeter(T) {
     let next = new Float64Array(n + 1);
@@ -92,35 +81,42 @@ function expectedWithMeter(T) {
 }
 
 function expectedWithCutoff(T, k) {
-    let next = new Float64Array(n + 1);
-    let cur = new Float64Array(n + 1);
+  let next = new Float64Array(n + 1);
+  let cur = new Float64Array(n + 1);
 
-    for (let t = T - 1; t >= 0; t--) {
-        const dp0Next = next[0];
+  for (let t = T - 1; t >= 0; t--) {
+    const dp0Next = next[0];
 
-        cur[n] = 1 + dp0Next;
+    cur[n] = 1 + dp0Next;
 
-        for (let r = n - 1; r >= 0; r--) {
-            const meterOn = r < k;
-            const p = meterOn ? pMeter[r] : baseProbability;
+    for (let r = n - 1; r >= 0; r--) {
+      const meterOn = r < k;
+      const p = meterOn ? pMeter[r] : baseProbability;
 
-            const succNext = meterOn ? dp0Next : next[r + 1];
-
-            cur[r] = p * (1 + succNext) + (1 - p) * next[r + 1];
-        }
-
-        const tmp = next;
-        next = cur;
-        cur = tmp;
+      const succNext = meterOn ? next[0] : next[r];
+      cur[r] = p * (1 + succNext) + (1 - p) * next[r + 1];
     }
 
-    return next[0];
-}
+    const tmp = next;
+    next = cur;
+    cur = tmp;
+  }
 
-const T = n + 1;
+  return next[0];
+}
 
 function runCheck() {
     console.log("Running check...");
+
+    pMeter = new Float64Array(n + 1);
+    for (let fails = 0; fails <= n; fails++) {
+        const storedScore = fails * scorePerRun;
+        const mult = 1 + Math.min((2 * storedScore) / requiredDungeonScore, 2);
+        const num = baseProbability * mult;
+        pMeter[fails] = num / (1 - baseProbability + num);
+    }
+    T = n + 1;
+
     const resultsEl = document.getElementById("results");
     const bestCutoffEl = document.getElementById("bestCutoff");
 
@@ -146,8 +142,7 @@ function runCheck() {
             `diff=${diff.toFixed(6)}\n`;
     }
 
-    bestCutoffEl.textContent =
-        `k = ${bestK} (Δ = ${bestDiff.toFixed(6)})`;
+    bestCutoffEl.textContent = `k = ${bestK} (Δ = ${bestDiff.toFixed(6)})`;
 }
 
 document.getElementById("calculateButton").addEventListener("click", runCheck);
